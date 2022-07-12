@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <style type="text/css">    
+    body {
+      top: 0;
+      left: 0;
+      margin: 0;
+      padding: 0;
+      outline: none;
+      user-select: none;
+      font-family: 'Roboto', sans-serif;
+      overflow: none;
+    }
+
+    #backdrop {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: silver;
+      background-image: url('https://images.pexels.com/photos/1526/dark-blur-blurred-gradient.jpg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200');
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+    }
+
+    /* MAIN CONTAINER */
+
+    #container {
+      display: none;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+
+      transform: translate(-50%,-50%);
+
+      width: 1650px;
+      height: 860px;
+    }
+
+    /* MAIN LAYOUT */
+
+    #grid {
+      position: relative;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 640px auto 640px;
+      grid-template-rows: 70px 660px auto;
+    }
+
+    /* NOTIFICATIONS */
+
+    #notifications {
+      position: relative;
+      width: 100%;
+      height: calc(100% - 20px);
+      margin: 10px 0px;
+      background-color: rgba(0,0,0,0.2);
+      overflow-x: hidden;
+      overflow-y: scroll;
+    }
+
+    #notifications > div {
+      position: relative;
+      width: auto;
+      color: white;
+      margin: 5px;
+      outline: 0;
+      border: none;
+      word-wrap: wrap;      
+    }
+
+    /* INVENTORY GRID */
+
+    .inventory-grid {
+      position: relative;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(5,19.5%);
+      grid-template-rows: repeat(8,150px);      
+      overflow-x: hidden;
+      overflow-y: scroll;
+    }
+
+    /* SHARED GRID SLOT */
+
+    .grid-slot {      
+      position: relative;
+      left: 2px;
+      top: 2px;
+      height: calc(100% - 4px);
+      width: calc(100% - 4px);
+      background-color: rgba(0,0,0,0.2);
+      border-radius: 5px;
+      display: grid;
+    }
+
+    .grid-slot > .info {      
+      display: grid;
+      border-radius: 0px 0px 5px 5px;
+      background-color: rgba(30,36,45);
+    }
+
+    .grid-slot > .item {
+      background-size: 70% 70%;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .grid-slot > .item > .hotkey {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      color: white;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    .grid-slot > .item > .weight {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      color: white;
+      text-align: right;
+      font-size: 14px;
+    }
+
+    .info > .quality {
+      width: 50%;  
+      border-radius: 0px 0px 5px 5px;
+      background-color: rgba(44,69,93);
+    }
+
+    .info > span {
+      position: relative;
+      top: 50%;
+      width: 100%;
+      height: 100%;
+      color: white;
+      text-align: center;
+      font-size: 11px;
+      transform: translateY(-30%);
+    }
+
+    /* INVENTORY GRID SLOT */
+
+    .inventory-grid-slot {
+      grid-template-columns: 100%;
+      grid-template-rows: 80% 20%;
+    }
+
+    .inventory-grid-slot > .info {
+      grid-template-columns: 100%;
+      grid-template-rows: 65% 35%;
+    }
+
+    /* SHOP GRID SLOT */
+
+    .shop-grid-slot {
+      grid-template-columns: 100%;
+      grid-template-rows: 80% 20%;
+    }
+
+    .shop-grid-slot > .info {
+      grid-template-columns: 100%;
+      grid-template-rows: 50% 50%;
+    }
+
+    /* CRAFTING */
+
+    .crafting-slot {
+      position: relative;
+      left: 2.5px;
+      top: 2.5px;
+      width: calc(100% - 5px);
+      height: calc(100% - 5px);
+
+      display: grid;
+      grid-template-columns: 40% 60%;
+      grid-template-rows: 100%;
+      background-color: rgba(0,0,0,0.3);
+      border-radius: 5px;
+    }
+
+    .crafting-grid-slot {
+      left: 10px;
+      top: 10px;
+      width: calc(100% - 10px);
+      height: calc(100% - 20px);
+      grid-template-columns: 100%;
+      grid-template-rows: 80% 20%;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .crafting-grid-slot > .item {
+      width: 100%;
+      height: 100%;
+      background-size: 60px 60px;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .crafting-grid-slot > .info {
+      position: relative;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      background-color: rgba(30,36,45);
+      color: white;
+      text-align: center;
+      font-size: 12px; 
+      line-height: 30px;
+    }
+
+    .crafting-info-slot {
+      width: 100%;
+      height: 100%;
+    }
+
+    .crafting-info-slot > .recipe {
+      position: relative;
+      left: 5px;
+      top: 5px;
+      width: calc(100% - 10px);
+      height: calc(100% - 10px);
+      display: grid;
+      grid-template-columns: 40px auto;
+      overflow-x: auto;
+      overflow-y: scroll;
+    }
+
+    .crafting-info-slot > .recipe > .image {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-size: 35px 35px;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .crafting-info-slot > .recipe > .text {
+      line-height: 40px;
+      color:white;
+      font-size: 16px;
+    }
+
+    /* SLOT OPACITY MOUSE EVENTS */
+
+    .selected {
+      background-color: rgba(0,0,0,0.5);  
+    }
+
+    .hovered {
+      background-color: rgba(0,0,0,0.4);  
+    }
+
+    /* HEADERS */
+
+    .header {
+      display: grid;
+      grid-template-columns: 100%;
+      grid-template-rows: 50% 50%;
+    }
+
+    .header > .title {
+      text-indent: 5px;
+      font-size: 25px;
+      color: white;
+    }
+
+    .header > .info {
+      display: grid;
+      grid-template-columns: 20px auto 60px;
+      grid-template-rows: 100%;
+    }
+
+    .header > .info > .money {
+      text-indent: 5px;
+      font-size: 15px;
+      color: white;      
+    }
+
+    .header > .info > .weight-image {
+      width: 100%;
+      height: 50%;
+      top: 25%;
+      background-image: url('icons/weight.png');
+      background-size: 90% 90%;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .header > .info > .weight-bar {
+      width: 100%;
+      height: 60%;
+      top: 10%;
+      margin-left: 5px;
+      background-color: rgba(30,36,45,0.5);
+      border-radius: 10px;
+    }
+
+    .header > .info > .weight-bar > .weight-fill {
+      width: 50%;
+      height: 100%;
+      border-radius: 10px;
+      background-color: rgba(30,36,45,1.0);
+      text-indent: 10px;
+      color: white;
+      font-size: 14px;
+      line-height: 22px;
+    }
+
+    .header > .info > .weight-text {
+      text-indent: 10px;
+      color: white;
+      font-size: 14px;
+      line-height: 22px;
+    }
+
+    /* INFO BUTTONS */
+
+    #info {
+      opacity: 0;
+    }
+
+    .info-buttons {
+      position: relative;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+
+      display: grid;
+      grid-template-rows: 100%;
+      grid-template-columns: 50% 50%;
+      width: 80px;
+      height: 40px;
+    }
+
+    .info-buttons > .button {
+      left: 5px;
+      top: 5px;
+      width:  38px;
+      height: 38px;
+      background-color: rgba(30,36,45);
+      border-radius: 5px;
+      background-size: 60% 60%;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.7;
+    }
+
+    .info-buttons > .button:hover {
+      opacity: 0.9;
+    }
+
+    .info-buttons > .settings-button {
+      background-image: url('icons/settings.png');      
+    }
+
+    .info-buttons > .help-button {
+      background-image: url('icons/help.png');
+    }
+
+    /* ACTION PANEL */
+
+    #actions {
+      display: grid;
+      grid-template-columns: 100%;
+      grid-template-rows: 60% 40%;
+    }
+
+    .action-panel {
+      position: relative;
+      width: 190px;
+      height: 300px;
+      left: 50%;
+      top: 60%;
+      transform: translate(-50%,-50%);
+      background-color: rgba(30,36,45,0.8);
+      border-radius: 10px;
+      display: grid;
+      grid-template-columns: 100%;
+      grid-template-rows: 25% 50% 25%;
+      padding: 10px;
+    }
+
+    .action-panel > .amount {      
+      margin: 15px;  
+      border-radius: 5px;
+      background-color: rgba(89,117,153);
+      opacity: 0.7;
+      color: white;
+      text-align: center;
+      font-size: 18px; 
+      outline: none;
+      border: none;
+      border: 1px solid rgba(100,100,100,0.1);
+    }
+
+    .action-panel > .amount:hover {      
+      opacity: 0.9;
+    }
+
+    .action-panel > .amount > .text {
+      position: relative;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      color: white;
+      text-align: center;
+      font-size: 18px;      
+    }
+
+    .action-panel > .use {     
+      background-size: 40% 40%;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-image: url('icons/give.png'); 
+      opacity: 0.7;
+    }
+
+    .action-panel > .use:hover {
+      opacity: 0.9;
+    }
+
+    .action-panel > .use > .text {
+      position: relative;
+      left: 50%;
+      top: 42%;
+      transform: translate(-50%,-50%);
+      color: white;
+      text-align: center;
+      font-size: 24px;      
+      pointer-events: none;
+    }
+
+    .action-panel > .close {    
+      margin: 15px;  
+      border-radius: 5px;
+      background-color: rgba(89,117,153);
+      opacity: 0.7;
+      border: 1px solid rgba(100,100,100,0.1);
+    }
+
+    .action-panel > .close:hover {      
+      opacity: 0.9;
+    }
+
+    .action-panel > .close > .text {
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      color: white;
+      font-size: 18px;    
+      line-height: 45px;
+    }
+
+    /* TOOLTIP */
+
+    .tooltip {
+      position: absolute;
+
+      padding: 15px;
+
+      width: 320px;
+      height: auto;
+
+      transform: translateY(-50%);
+      border-radius: 10px;
+
+      z-index: 9;
+
+      background-color: rgba(30,36,45);
+
+      color: white;
+
+      display: grid;
+      grid-template-columns: 100%;
+      grid-template-rows: auto auto;
+    }
+
+    .tooltip > .flex {
+      display: flex;
+      flex-wrap: wrap; 
+    }
+
+    .tooltip > .label {
+      color: white;
+      font-size: 24px;
+    }
+
+    .tooltip > .description {
+      color: white;
+      font-size: 16px;
+    }
+
+    /* DRAGGABLE COPY SLOT */
+
+    .copy {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      pointer-events: none;
+      background-color: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      display: grid;
+      grid-template-columns: 100%;
+      grid-template-rows: 85% 15%;
+    }
+
+    .copy > .item {
+      width: 100%;
+      height: 100%;
+      background-size: 70% 70%;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .copy > .info {
+      position: relative;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      color: white;
+      text-align: center;
+      font-size: 10px;  
+    }
+
+    .copy > .item > .weight {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      color: white;
+      text-align: right;
+      font-size: 14px;
+    }
+
+    /* TEXT HELPERS */
+
+    green-text {
+      color: rgb(0,183,91);
+    }
+
+    empty {
+
+    }
+
+    /* SCROLLBAR */
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.2); 
+      border-radius: 4px;
+    }
+     
+    ::-webkit-scrollbar-thumb {
+      background-color: rgba(30,36,45,0.8);
+      border-radius: 4px;
+    }
+
+    /* NUMBER INPUT */
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    /* PLACEHOLDER FOR INPUT */
+
+    ::placeholder {
+      color: white;
+    }
+
+    /* MINIGAME */
+
+    .progress-ring {
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      width: 100%;
+      height: 100%;
+    }
+
+    .progress-ring__circle {
+      // axis compensation
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    #minigame {
+      display: none;
+      position: absolute;
+      top: calc(50% + 210px);
+      left: 50%;
+      transform: translate(-50%,-50%);
+
+      border-radius: 50%;
+      width: 120px;
+      height: 120px; 
+
+      background-color: rgba(0,0,0,0.3);
+    }
+
+    #minigame > .text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      font-size: 56px;
+      text-align: center;
+      color: white;
+    }
+
+    /* HOTKEYS */
+
+    #hotkeys {
+      position: absolute;
+      display: grid;
+      left: 50%;
+      bottom: 20px;
+      width: auto;
+      height: auto;
+      transform: translateX(-50%);
+      grid-template-rows: 90px;
+      grid-template-columns: repeat(4,80px);
+      grid-column-gap: 10px;
+    }
+
+    #hotkeys > .hotkey {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+      border: 2px solid rgba(255,255,255,0.1);
+      transform: translate(-2px,-2px);
+      opacity: 0.0;
+      border-radius: 5px;
+
+      display: grid;
+      grid-template-columns: 100%;
+      grid-template-rows: 80% 20%;
+      transition: opacity 0.3s;
+    }
+
+    #hotkeys > .hotkey > .image {
+      position: relative;
+      top: 0px;
+      left: 0px;
+      width: 100%;
+      height: 100%;
+      background-size: 40px 40px;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    #hotkeys > .hotkey > .image > .key {
+      position: relative;
+      top: 5px;
+      left: 5px;
+      color: rgba(255,255,255,0.8);
+      font-size: 12px;
+    }
+
+    #hotkeys > .hotkey > .label {
+      position: relative;
+      color: white;
+      font-size: 12px;
+      text-align: center;
+      line-height: 15px;
+      color: rgba(255,255,255,0.8);
+      background-color: rgba(44,69,93);
+    }
+
+    #hotkeys > .hotkey > .label > span {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 100%;
+      transform: translate(-50%,-50%);
+      text-align: center;
+    }
+
+    /* SWAP NOTIFS */
+
+    #swap-notifications {
+      position: absolute;
+      display: none;
+      left: 50%;
+      bottom: 90px;
+      transform: translate(-50%,-50%);
+
+      flex-direction: row;
+      flex-grow: 3;
+      height: auto;
+      width: auto;
+    }
+
+    #swap-notifications > .notification {
+      width: 70px;
+      height: 90px;
+      margin: 5px;
+      display: grid;
+      grid-template-columns: 100%;
+      grid-template-rows: 80% auto;
+    }
+
+    #swap-notifications > .notification > .image {
+      position: relative;
+      top: 0px;
+      left: 0px;
+      width: 100%;
+      height: 100%;
+      background-size: 40px 40px;
+      background-position: center;
+      background-repeat: no-repeat; 
+      background-image: url('items/bandage.png');
+      background-color: rgba(0,0,0,0.3);
+    }
+
+    #swap-notifications > .notification > .image > .count {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: auto;
+      max-width: calc(100% - 4px);
+      padding-left: 2px;
+      padding-right: 2px;
+      color: rgba(0,0,0,0.8);
+      background-color: rgba(255,255,255,0.8);
+      font-size: 10px;
+    }
+
+    #swap-notifications > .notification > .label {
+      position: relative;
+      color: white;
+      font-size: 12px;
+      text-align: center;
+      line-height: 15px;
+      color: rgba(255,255,255,0.8);
+      background-color: rgba(44,69,93);
+    }
+
+    #swap-notifications > .notification > .label > div {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 100%;
+      transform: translate(-50%,-50%);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- <div id="backdrop"></div> -->
+  <div id="container">
+    <div id="grid">      
+      <div id="player-header" class="header"></div>
+
+      <div></div>
+
+      <div id="other-header" class="header"></div>
+
+      <div id="player-inventory" class="inventory-grid"></div>
+
+      <div id="actions">
+        <div class="action-panel">
+          <input id="amount" type="number" class="amount" placeholder="AMOUNT" value=0 onkeypress="return (event.charCode == 8 || event.charCode == 0 || event.charCode == 13) ? null : event.charCode >= 48 && event.charCode <= 57" oninput="checkAmountValue(this)">
+          
+          <div class="use" onclick="useItem()" id="use">
+            <div class="text" id="use-button-text">USE</div>
+          </div>
+          <div class="close" onclick="closeInventory()">
+            <div class="text" id="close-button-text">CLOSE</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="other-container">
+        <div id="other-inventory" class="inventory-grid"></div>
+        <div id="crafting"></div>
+      </div>
+
+      <div></div>
+
+      <div id="info">
+        <div class="info-buttons">
+          <div id="settings" class="button settings-button"></div>
+          <div id="help" class="button help-button"></div>
+        </div>
+      </div>
+
+      <div id="notifications"></div>
+    </div>
+  </div>
+
+  <div id="minigame">            
+    <div id="minigame-text" class="text">3</div>
+    <svg class="progress-ring">
+      <circle id="minigame-target" class="progress-ring__circle" stroke="rgba(44,69,93)" stroke-width="10" fill="transparent" r="55" cx="60" cy="60"/>
+    </svg>
+    <svg class="progress-ring">
+      <circle id="minigame-player" class="progress-ring__circle" stroke="rgba(255,255,255,0.5)" stroke-width="10" fill="transparent" r="55" cx="60" cy="60"/>
+    </svg>
+  </div>
+
+  <div id="hotkeys">
+    <div class="hotkey" id="hotkey-1"></div>
+    <div class="hotkey" id="hotkey-2"></div>
+    <div class="hotkey" id="hotkey-3"></div>
+    <div class="hotkey" id="hotkey-4"></div>
+  </div>
+  <div id="notifications"></div>
+  <div id="swap-notifications"></div>
+
+  <script type="text/javascript">
+    var translations;
+    var playerMoney = 2500;
+    var actionLog = [];
+    var toolTip;
+    var selectedSlot;
+    var draggingSlot;
+    var playerId;
+    var plyInv;
+    var otherInv;
+    var inventoryOpen;
+    var resourceName;
+
+    /* INVENTORY OBJECT */
+
+    function closeInventory() {
+      document.getElementById('container').style.display = "none";
+      $.post(`https://${resourceName}/closed`);
+      inventoryOpen = false;
+    }
+
+    function useItem() {
+      if (selectedSlot && selectedSlot.item && selectedSlot.item.name && selectedSlot.identifier != "ground" && selectedSlot.type != "shop" && selectedSlot.type != "crafting") {
+        $.post(`https://${resourceName}/useItem`,JSON.stringify({fromIdentifier:selectedSlot.identifier,item:selectedSlot.item,fromIndex:selectedSlot.itemIndex+1}));
+      }
+    }
+
+    function inventoryCleanup(inv) {
+      if (inv) {
+        inv.removeChildren(inv.container);
+        inv.removeChildren(inv.header);
+      }
+    }
+
+    function checkAmountValue(e) {
+      if (e.value == "")
+        return
+
+      e.value = parseInt(e.value)
+
+      if (e.value < 0) {
+        e.value = 0
+        return
+      }
+
+      e.value = Math.floor(e.value)
+    }
+
+    function Inventory(type,identifier,label,data) {
+      this.type       = type;
+      this.identifier = identifier;
+      this.label      = translations[label] || ('Unknown Label: '+label);
+      this.data       = data;
+
+      if (identifier == playerId) {
+        this.container = document.getElementById('player-inventory');
+        this.header    = document.getElementById('player-header');
+      } else {
+        this.container = document.getElementById('other-inventory');
+        this.header    = document.getElementById('other-header');
+      }
+
+      this.removeChildren = function(ele) {
+        var child = ele.lastChild;
+        while (child) {
+          child.remove();
+          child = ele.lastChild;
+        }        
+      }
+
+      this.refresh = function(data) {
+        this.data = data;
+        this.refreshHeader();
+        this.refreshContainer();
+      }
+
+      this.refreshHeader = function() {
+        this.removeChildren(this.header);
+        this.constructHeader();
+      }
+
+      this.refreshContainer = function() {
+        this.removeChildren(this.container);
+        this.constructContainer();
+      }
+
+      this.constructHeader = function() {
+        var title = document.createElement('DIV');
+        title.className = "title";
+        title.innerHTML = `<b>${this.label}</b>`;
+        this.header.appendChild(title);
+
+        var info = document.createElement('DIV');
+        info.className = "info";
+
+        var slotA = document.createElement('DIV');
+        var slotB = document.createElement('DIV');
+        var slotC = document.createElement('DIV');
+
+        if (this.type == "inventory" || this.type == "subinventory") {
+
+          slotA.className = "weight-image";
+          slotB.className = "weight-bar";
+          slotC.className = "weight-text";
+          slotC.textContent = (this.data.identifier == "ground" ? "INF" : this.data.maxWeight);
+
+          var weightFill = document.createElement('DIV');
+          weightFill.className = "weight-fill";
+          weightFill.textContent = (this.data.identifier == "ground" ? 0 : this.data.weight);
+          weightFill.style.width = (this.data.identifier == "ground" ? "0%" : Math.min(100,Math.floor(this.data.weight / this.data.maxWeight * 100))+"%");
+          var col = getWeightBarColor(this.data.identifier == "ground" ? 0 : Math.min(this.data.weight,this.data.maxWeight),this.data.maxWeight);
+          weightFill.style.backgroundColor = col;
+
+          slotB.appendChild(weightFill);
+        } else if (this.type == "shop") {
+          slotB.className = "money";
+          slotB.innerHTML = translations['money_to_spend'].replace('${playerMoney}',playerMoney);
+        } else if (this.type == "crafting") {
+        }
+
+        info.appendChild(slotA);
+        info.appendChild(slotB);
+        info.appendChild(slotC);
+
+        this.header.appendChild(info);
+      }
+
+      this.constructContainer = function() {
+        if (this.type == "crafting") {
+          this.container.style.gridTemplateRows = `repeat(${Math.ceil(this.data.recipes.length+1 / 2)},170px)`;
+          this.container.style.gridTemplateColumns = "50% 50%";
+
+          for (var j=0;j<this.data.recipes.length;j++) {
+            var recipe = this.data.recipes[j];
+            var craftingSlot = document.createElement('DIV');
+            craftingSlot.className = "crafting-slot";
+
+            var slot = document.createElement('DIV');
+            slot.className = "grid-slot";
+
+            var item = document.createElement('DIV');
+            item.className = "item";
+
+            var count = document.createElement('DIV');
+            count.className = "weight";
+
+            var info = document.createElement('DIV');
+            info.className = "info";
+
+            slot.className += " crafting-grid-slot";
+
+            item.style.backgroundImage = `url('items/${recipe.name}.png`;
+
+            count.textContent = `${recipe.count} (${recipe.count*recipe.weight})`;
+
+            var l = recipe.label.toUpperCase();
+            if (l.length >= 15) {
+              l = l.substr(0,15) + "..";
+            }
+            info.textContent = l;
+
+            item.appendChild(count);
+            slot.appendChild(item);
+            slot.appendChild(info);
+
+            var recipeSlot = document.createElement('DIV');
+            recipeSlot.className = "crafting-info-slot";
+
+            var infoSlot = document.createElement('DIV');
+            infoSlot.className = "recipe";
+            infoSlot.style.gridTemplateRows = `repeat(${Math.ceil((recipe.required.length+2)/2)},40px)`;
+
+            for (var i=0;i<recipe.required.length;i++) {
+              var item = recipe.required[i];
+
+              var image = document.createElement('DIV');
+              image.className = "image";
+              image.style.backgroundImage = `url("items/${item.name}.png")`;            
+
+              var label = item.label;
+              if (label.length >= 12) {
+                label = label.substr(0,12) + "..";
+              }
+
+              var text = document.createElement('DIV');
+              text.className = "text";
+              text.textContent = label + ": " + item.count;
+
+              infoSlot.appendChild(image);
+              infoSlot.appendChild(text);
+            }
+
+            recipeSlot.appendChild(infoSlot);
+
+
+            craftingSlot.itemIndex = i;
+            craftingSlot.item = recipe;
+            craftingSlot.type = this.type;
+            craftingSlot.identifier = this.identifier;
+
+            craftingSlot.onmouseenter = function(e) {
+              if (!this.classList.contains("selected")) {
+                this.classList.add("hovered");   
+              }
+            }
+
+            craftingSlot.onmousedown = function(e) {
+              if (toolTip) {
+                removeTooltip();
+              }
+
+              if (selectedSlot) {
+                selectedSlot.slot.classList.remove("selected");
+              }
+
+              if (this.item && this.item.name) {
+                selectedSlot = {
+                  slot:this,
+                  type:this.type,
+                  itemIndex:this.itemIndex,
+                  item:this.item,
+                  identifier:this.identifier
+                }
+
+                selectedSlot.slot.classList.add("selected");
+                selectedSlot.slot.classList.remove("hovered");
+
+                constructTooltip(this,this.type,this.item); 
+
+                draggingSlot = {
+                  slot:this,
+                  x:e.x,
+                  y:e.y
+                }
+              }
+            }
+
+            craftingSlot.onmouseup = function() {
+              if (draggingSlot) {
+                if (this == draggingSlot.slot) {
+                  if (draggingSlot.copy) {
+                    draggingSlot.copy.remove();
+                  }
+                  draggingSlot = undefined;
+                }
+              }
+            }
+
+            craftingSlot.onmousemove = function(e) {     
+              if (draggingSlot) {  
+                if (!draggingSlot.copy && pointDist(draggingSlot.x,draggingSlot.y,e.x,e.y) >= 5) {     
+                  createDragCopy(this);
+                  removeTooltip();
+                }
+              }
+            }
+
+            craftingSlot.onmouseleave = function() {
+              if (toolTip) {
+                removeTooltip();
+              }
+
+              this.classList.remove("hovered");  
+            }
+
+            craftingSlot.appendChild(slot)
+            craftingSlot.appendChild(recipeSlot)
+            this.container.appendChild(craftingSlot);
+          }
+
+        } else {
+          this.container.style.gridTemplateRows = `repeat(${Math.ceil(this.data.maxSlots / 5)},150px)`;
+          this.container.style.gridTemplateColumns = "repeat(5,19.5%)";
+
+          for (var i=0;i<this.data.maxSlots;i++) {
+            var slot = document.createElement('DIV');
+            slot.className = "grid-slot";
+
+            var item = document.createElement('DIV');
+            item.className = "item";
+
+            var info = document.createElement('DIV');
+            info.className = "info";
+
+            if (this.type == "inventory" || this.type == "subinventory") {
+              slot.className += " inventory-grid-slot";
+
+              if (this.data.items[i] && this.data.items[i].name) {
+                item.style.backgroundImage = `url('items/${this.data.items[i].name}.png`;
+
+                var itemLabel = document.createElement('SPAN');
+                itemLabel.textContent = this.data.items[i].label.toUpperCase();
+
+                var itemQuality = document.createElement('DIV');
+                itemQuality.className = "quality";
+                itemQuality.style.width = (this.data.items[i].quality ? `${this.data.items[i].quality}%` : "100%");
+                itemQuality.style.backgroundColor = getQualityBarColor(this.data.items[i].quality);
+
+                var countWeight = document.createElement('DIV');
+                countWeight.className = "weight";
+                countWeight.textContent = `${this.data.items[i].count} (${this.data.items[i].weight * this.data.items[i].count})`;
+                item.appendChild(countWeight);
+
+                if (this.identifier == playerId && i < 4) {
+                  var hotKey = document.createElement('DIV');
+                  hotKey.className = "hotkey";
+                  hotKey.textContent = i + 1;
+                  item.appendChild(hotKey);                
+                }
+
+                info.appendChild(itemLabel);
+                info.appendChild(itemQuality);
+              }
+            } else if (this.type == "shop") {
+              slot.className += " shop-grid-slot";
+
+              if (this.data.items[i] && this.data.items[i].name) {
+                item.style.backgroundImage = `url('items/${this.data.items[i].name}.png`;
+
+                var itemPrice = document.createElement('SPAN');
+
+                if (this.data.items[i].price) {
+                  itemPrice.innerHTML = `<green-text>$${this.data.items[i].price}</green-text>`;
+
+                  if (this.data.items[i].buyPrice) {
+                    itemPrice.innerHTML += ` | <green-text>$${this.data.items[i].buyPrice}</green-text>`;
+                  } 
+                } else if (this.data.items[i].buyPrice) {
+                  itemPrice.innerHTML = `<green-text>$${this.data.items[i].buyPrice}</green-text>`;                 
+                }
+
+                var itemLabel = document.createElement('SPAN');
+                itemLabel.textContent = this.data.items[i].label.toUpperCase();
+
+                info.appendChild(itemPrice);
+                info.appendChild(itemLabel);
+              } 
+            }
+
+            if (!this.data.items[i] || !this.data.items[i].name) {
+              slot.style.opacity = 0.7;
+            }
+
+            slot.appendChild(item);
+            slot.appendChild(info);
+
+            slot.itemIndex = i;
+            slot.item = this.data.items[i];
+            slot.type = this.type;
+            slot.identifier = this.identifier;
+
+            slot.onmouseenter = function(e) {
+              if (!this.classList.contains("selected")) {
+                this.classList.add("hovered");   
+              }
+            }
+
+            slot.onmousedown = function(e) {
+              if (toolTip) {
+                removeTooltip();
+              }
+
+              if (selectedSlot) {
+                selectedSlot.slot.classList.remove("selected");
+              }
+
+              if (this.item && this.item.name) {
+                selectedSlot = {
+                  slot:this,
+                  type:this.type,
+                  itemIndex:this.itemIndex,
+                  item:this.item,
+                  identifier:this.identifier
+                }
+
+                selectedSlot.slot.classList.add("selected");
+                selectedSlot.slot.classList.remove("hovered");
+
+                constructTooltip(this,this.type,this.item); 
+
+                draggingSlot = {
+                  slot:this,
+                  x:e.x,
+                  y:e.y
+                }
+              }
+            }
+
+            slot.onmouseup = function() {
+              if (draggingSlot) {
+                if (this == draggingSlot.slot) {
+                  if (draggingSlot.copy) {
+                    draggingSlot.copy.remove();
+                  }
+                  draggingSlot = undefined;
+                } else {
+                  if (this.identifier != selectedSlot.identifier) {
+
+                    var otherIdentifier = this.identifier;
+                    var otherType = this.type;
+
+                    var count = Math.floor(parseInt(document.getElementById('amount').value));
+                    count = (count > 0 ? count : (selectedSlot.item.count ? selectedSlot.item.count : 1));
+
+                    if ((selectedSlot.type != "crafting") || selectedSlot.item.buyPrice) {
+                      transferItems(selectedSlot.identifier,otherIdentifier,selectedSlot.type,otherType,count,selectedSlot.item,selectedSlot.itemIndex,this.itemIndex);
+                    } else if (selectedSlot.type == "crafting") {
+                      craftItem(selectedSlot.identifier,selectedSlot.item);
+                    } 
+
+                    if (draggingSlot.copy) {
+                      draggingSlot.copy.remove();
+                    }
+
+                    selectedSlot.slot.classList.remove("selected");
+                    selectedSlot = undefined;
+                    draggingSlot = undefined;
+                  } else {
+
+                    var otherIdentifier = this.identifier;
+                    var otherType = this.type;
+
+                    if (otherType != "shop" && otherIdentifier != "ground") {
+                      transferLocalItems(otherIdentifier,draggingSlot.count,draggingSlot.item,draggingSlot.itemIndex,this.itemIndex);
+                    }
+                  }
+                }
+              }
+            }
+
+            slot.onmousemove = function(e) {     
+              if (draggingSlot) {  
+                if (!draggingSlot.copy && pointDist(draggingSlot.x,draggingSlot.y,e.x,e.y) >= 5) {     
+                  createDragCopy(this);
+                  removeTooltip();
+                }
+              }
+            }
+
+            slot.onmouseleave = function() {
+              if (toolTip) {
+                removeTooltip();
+              }
+
+              this.classList.remove("hovered");  
+            }
+
+            this.container.appendChild(slot);
+          }
+        }
+      }
+
+      this.set = function(key,val) {
+        this[key] = val;
+      }
+
+      this.get = function(key,val) {
+        return this[key];
+      }
+
+      this.setData = function(key,val) {
+        this.data[key] = val;
+      }
+
+      this.getData = function(key) {
+        return this.data[key];
+      }
+
+      this.refresh(this.data);
+    }
+
+    /* QUALITY COLORS */
+
+    function getWeightBarColor(cur,max) {
+      var pct = cur/max;
+      var col = lerpColor("#39bf68","#e85151",pct);
+      return col;
+    }
+
+    function getQualityTextColor(num) {
+      if (num) {
+        var col = lerpColor("#b70000","#00b75b",num/100);
+        return col;
+      }
+    }
+
+    function getQualityBarColor(num) {
+      if (num) {
+        var col = lerpColor("#b85151","#597599",num/100);
+        return col;
+      }
+    }
+
+    function lerpColor(a, b, amount) { 
+      var ah = parseInt(a.replace(/#/g, ''), 16),
+        ar = ah >> 16, ag = ah >> 8 & 0xff, ab = ah & 0xff,
+        bh = parseInt(b.replace(/#/g, ''), 16),
+        br = bh >> 16, bg = bh >> 8 & 0xff, bb = bh & 0xff,
+        rr = ar + amount * (br - ar),
+        rg = ag + amount * (bg - ag),
+        rb = ab + amount * (bb - ab);
+
+      return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + rb | 0).toString(16).slice(1);
+    }
+
+    /* DRAG OBJECT */
+
+    function createDragCopy(ele) {
+      var rect = ele.getBoundingClientRect();
+      var copy = document.createElement('DIV');
+      copy.className = "copy";
+      copy.style.width = "110px";
+      copy.style.height = "150px";
+      copy.style.left = rect.x + "px";
+      copy.style.top = rect.y + "px";
+
+      var item = document.createElement('DIV');
+      item.className = "item";
+      item.style.backgroundImage = `url('items/${ele.item.name}.png')`;
+
+      var countWeight = document.createElement('DIV');
+      countWeight.className = "weight";
+
+      var count = Math.floor(parseInt(document.getElementById('amount').value));
+      count = (count > 0 ? Math.min((ele.item.count ? ele.item.count : 1),count) : (ele.item.count ? ele.item.count : 1));
+      countWeight.textContent = `${count} (${count*ele.item.weight})`;
+
+      var info = document.createElement('DIV');
+      info.className = "info";
+
+      info.textContent = ele.item.label.toUpperCase();
+
+      item.appendChild(countWeight);
+      copy.appendChild(item);
+      copy.appendChild(info);
+
+      document.body.appendChild(copy);
+
+      draggingSlot.copy       = copy;
+      draggingSlot.count      = count;
+      draggingSlot.item       = ele.item;
+      draggingSlot.itemIndex  = ele.itemIndex;
+    }
+
+    function pointDist(x1,y1,x2,y2) {
+      var a = x1 - x2;
+      var b = y1 - y2;
+      return Math.sqrt(a*a + b*b);
+    }
+
+    window.addEventListener('mousemove',function(e) {  
+      if (draggingSlot) {  
+        if (!draggingSlot.copy && pointDist(draggingSlot.x,draggingSlot.y,e.x,e.y) >= 5) {     
+          createDragCopy(draggingSlot.slot);
+          removeTooltip();
+        } else if (draggingSlot.copy) {
+          draggingSlot.copy.style.left = e.x + "px";
+          draggingSlot.copy.style.top = e.y + "px";
+        }
+      }
+    })
+
+    window.addEventListener('mouseup',function(e) {
+      if (draggingSlot && draggingSlot.copy) {
+        if (e.toElement.id == "use") {
+          if (selectedSlot && selectedSlot.item && selectedSlot.item.name && selectedSlot.identifier != "ground" && selectedSlot.type != "shop" && selectedSlot.type != "crafting") {
+        $.post(`https://${resourceName}/useItem`,JSON.stringify({fromIdentifier:selectedSlot.identifier,item:selectedSlot.item,fromIndex:selectedSlot.itemIndex+1}));
+      }
+        }
+
+        draggingSlot.copy.remove();
+        draggingSlot = undefined;
+      }
+    })
+
+    /* TOOLTIP */
+
+    function removeTooltip() {
+      if (toolTip) {
+        toolTip.remove();
+        toolTip = false;
+      }
+    }
+    
+    function constructTooltip(slot,type,item) {
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      var rect = slot.getBoundingClientRect();
+
+      toolTip = document.createElement('DIV');
+      toolTip.className   = "tooltip";
+      toolTip.style.left  = rect.x + rect.width + 20 + "px";
+
+      var label = document.createElement('DIV');
+      label.className = "label";
+      label.innerHTML = `<b>${item.label}</b><hr>`;
+
+      var info = document.createElement('DIV');
+      info.className = "flex";
+
+      var flexItem = document.createElement('DIV');
+      if (type == "inventory" || type == "subinventory") {
+        flexItem.innerHTML = `<b>`+translations["weight"]+`</b>: ${item.weight*item.count} | <b>`+translations["amount"]+`</b>: ${item.count} | <b>`+translations["quality"]+`</b>: <empty style='color:${getQualityTextColor(item.quality)}'><b>${item.quality}</b></empty>`;
+      } else if (type == "shop") {
+        if (item.price) {
+          if (item.buyPrice) {
+            flexItem.innerHTML = `<b>`+translations["sell_price_text"]+`</b>: <green-text>$${item.price}</green-text> | <b>`+translations["buy_price_text"]+`<b>: <green-text>$${item.buyPrice}</green-text>`;        
+          } else {
+            flexItem.innerHTML = `<b>`+translations["price"]+`</b>: <green-text>$${item.price}</green-text>`;               
+          }   
+        } else  if (item.buyPrice) {
+          flexItem.innerHTML = `<b>`+translations["buy_price"]+`</b>: <green-text>$${item.buyPrice}</green-text>`;
+        }   
+      } else if (type == "crafting") {
+        flexItem.innerHTML = `<b>`+translations["weight"]+`</b>: ${item.weight*item.count} | <b>`+translations["amount"]+`</b>: ${item.count} | <b>`+translations["quality"]+`</b>: <empty style='color:${getQualityTextColor(100)}'><b>${100}</b></empty>`;        
+      }
+
+      info.appendChild(flexItem);
+
+      toolTip.appendChild(label);
+      toolTip.appendChild(info);
+
+      if (item.description) {
+        var desc = document.createElement('DIV');
+        desc.className = "description";
+        desc.innerHTML = `<hr><i>${item.description}</i>`;
+        toolTip.appendChild(desc);
+      }
+
+      document.body.appendChild(toolTip);   
+
+      var ttRect = toolTip.getBoundingClientRect();
+      var width = ttRect.width;
+      var left = ttRect.x;
+
+      if (left + (width/2) >= w) {
+        toolTip.style.left  = rect.x - rect.width - 50 + "px";
+      }
+      toolTip.style.top = rect.y + (ttRect.height / 2) + "px";
+    }
+
+    /* MINIGAME */
+
+    var circle = document.getElementById('minigame-player');
+    var target = document.getElementById('minigame-target');
+    var radius = circle.r.baseVal.value;
+    var circumference = radius * 2 * Math.PI;
+
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = `${circumference}`;
+
+    target.style.strokeDasharray = `${circumference} ${circumference}`;
+    target.style.strokeDashoffset = `${circumference}`;
+
+    function setProgress(percent) {
+      const offset = circumference - percent / 100 * circumference;
+      circle.style.strokeDashoffset = offset;
+    }
+
+    function setTarget(rot,percent) {
+      const offset = circumference - percent / 100 * circumference;
+      target.style.strokeDashoffset = offset;
+      target.style.transform = `rotate(${rot}deg)`;
+    }
+
+    var playingMinigame = false;
+    var pressedKeys = {};
+
+    function startMinigame(length,s) {
+      document.getElementById('minigame').style.display = "block";
+
+      playingMinigame = true;
+
+      document.getElementById('minigame-text').textContent = length;
+
+      let target = (Math.random()*180) + 100;
+      let progress = 0;
+      let speed = s;
+      setProgress(progress)
+      setTarget(target,15);
+
+      pressedKeys[" "] = undefined;
+
+      let result;
+
+      function gameLoop() {
+        if (playingMinigame) {
+          if (progress * 3.6 > target + (15*3.6)) {
+            playingMinigame = false;    
+            result = false;   
+          } else { 
+            if (pressedKeys[" "]) {
+              if (progress * 3.6 >= target) {
+                if (length <= 1) {
+                  playingMinigame = false;       
+                  result = true;         
+                } else {
+                  pressedKeys[" "] = false;
+                  progress = 0;
+                  setProgress(progress);
+                  target = (Math.random()*180 + 100);
+                  setTarget(target,15);
+                  length--;
+                  document.getElementById('minigame-text').textContent = length;
+                }
+              } else {
+                playingMinigame = false;
+                result = false;
+              }
+            }
+          } 
+            
+          progress += (1 * speed);
+          setProgress(progress);  
+
+          window.requestAnimationFrame(gameLoop);
+        } else {
+          $.post(`https://${resourceName}/minigameComplete`,JSON.stringify({result:result}))
+          document.getElementById('minigame').style.display = "none";
+        }
+      }
+
+      setTimeout(function() {
+        window.requestAnimationFrame(gameLoop)
+      },1000);
+    }
+
+    closeMinigame = function() {
+      playingMinigame = false;
+      document.getElementById('minigame').style.display = "none";
+      $.post(`https://${resourceName}/closedMinigame`);
+    }
+
+    window.addEventListener('keydown',function(e) { 
+      pressedKeys[e.key] = true;
+    })
+
+    window.addEventListener('keyup',function(e) { 
+      pressedKeys[e.key] = false;
+    });
+
+    /* TRANSFER STUFF */
+
+    craftItem = function(identifier,recipe) {
+      $.post(`https://${resourceName}/craft`,JSON.stringify({identifier:identifier,recipe:recipe}));
+    }
+
+    transferItems = function(fromIdentifier,toIdentifier,fromType,toType,count,item,fromItemIndex,toItemIndex) {
+      count = Math.abs(parseInt(count))
+      if (fromType == "shop") {
+        $.post(`https://${resourceName}/purchase`,JSON.stringify({
+          fromIdentifier:fromIdentifier,
+          count:count,
+          item:item,
+          fromIndex:fromItemIndex+1,
+          toIndex:toItemIndex+1
+        }));
+      } else if (toType == "shop") {
+        $.post(`https://${resourceName}/sell`,JSON.stringify({
+          toIdentifier:toIdentifier,
+          count:count,
+          item:item,
+          fromIndex:fromItemIndex+1,
+          toIndex:toItemIndex+1
+        }));
+      } else {
+        $.post(`https://${resourceName}/transfer`,JSON.stringify({
+          fromIdentifier:fromIdentifier,
+          toIdentifier:toIdentifier,
+          count:count,
+          item:item,
+          fromIndex:fromItemIndex+1,
+          toIndex:toItemIndex+1
+        }));
+      }
+    }
+
+    transferLocalItems = function(identifier,count,item,fromItemIndex,toItemIndex) {
+      count = Math.abs(parseInt(count))
+      $.post(`https://${resourceName}/move`,JSON.stringify({
+        identifier:identifier,
+        fromIndex:fromItemIndex+1,
+        toIndex:toItemIndex+1,
+        count:count,
+        item:item,
+      }));
+    }
+
+    /* INIT */
+
+    function updateActions(actions) {
+      actionLog = actions;     
+
+      var notifications = document.getElementById('notifications');
+      var child = notifications.lastChild;
+      while (child) {
+        child.remove();
+        child = notifications.lastChild;
+      }
+
+      for (var i=0;i<actions.length;i++) {
+        var act = actions[i];
+        var div = document.createElement('DIV');
+        div.textContent = act;
+        notifications.appendChild(div);
+      }
+      notifications.scrollTop = notifications.scrollHeight;
+    }
+
+    var notifCount = 0;
+
+    function addNotification(added,item) {
+      let container = document.getElementById('swap-notifications');
+      let newNotif = document.createElement('DIV');
+      newNotif.className = "notification";
+
+      var image = document.createElement('DIV');
+      image.className = "image";
+      image.style.backgroundImage = `url("items/${item.name}.png")`;
+
+      var count = document.createElement('DIV');
+      count.className = "count";
+
+      var label = document.createElement("DIV");
+      label.className = "label";
+
+      var text = item.label;
+      if (text.length >= 10) {
+        text = text.substr(0,10) + "..";
+      }
+      label.innerHTML = `<div>${text}</div>`;
+
+      if (added) {
+        count.textContent = `x${item.count} Added`;
+      } else {
+        count.textContent = `x${item.count} Removed`;
+      }
+
+      image.appendChild(count);
+      newNotif.appendChild(image);
+      newNotif.appendChild(label);
+      container.appendChild(newNotif);
+
+      notifCount++;
+
+      container.style.display = "flex";
+
+      setTimeout(function() {
+        $(newNotif).fadeOut(500,function() {
+          newNotif.remove();
+          notifCount--;
+          if (notifCount <= 0) {
+            container.style.display = "block";
+          }
+        })
+      },2000);
+    }
+
+    var hotkeysOpen = false;
+    var pressedHotkeys = {};
+
+    hotkeyPressed = function(index,hotkeyItems) {
+      document.getElementById('hotkeys').style.display = "grid";
+
+      for (var i=0;i<hotkeyItems.length;i++) {
+        if (!hotkeysOpen) {
+
+          var item = hotkeyItems[i];
+          let ele = document.getElementById('hotkey-'+(i+1));
+
+          var child = ele.lastChild;
+          while (child) {
+            child.remove();
+            child = ele.lastChild;
+          }
+
+          var image = document.createElement('div');
+          image.className = "image";
+
+          var key = document.createElement('div');
+          key.className = "key";
+          key.textContent = i+1;
+
+          var label = document.createElement('div');
+          label.className = "label";
+
+          if (item && item.name) {
+            image.style.backgroundImage = `url('items/${item.name}.png')`;
+
+            var l = item.label;
+            if (l && l.length >= 10) {
+              l = l.substr(0,10) + "..";
+            } 
+            label.innerHTML = `<span>${l}</span>`;
+          }
+
+          image.appendChild(key);
+          ele.appendChild(image);
+          ele.appendChild(label);
+
+          if (i+1 == index) {
+            var item = hotkeyItems[index];
+            pressedHotkeys[index] = Date.now();
+
+            $(ele).animate({top:"-10px"},300);
+            $(ele).css({opacity:1.0});
+
+            setTimeout(function() {
+              var now = Date.now();
+              if (now - pressedHotkeys[index] >= 900) {
+                pressedHotkeys[index] = undefined;
+
+                $(ele).animate({top:"0px"},200);
+                $(ele).css({opacity:0.0});
+
+                var c = 0;
+                for (var key in pressedHotkeys) {
+                  if (pressedHotkeys[key]) {
+                    c++;
+                  }
+                }
+
+                if (c <= 0) {
+                  hotkeysOpen = false;
+                }
+              }
+            },2500)      
+          }
+        } else {
+          var item = hotkeyItems[index];
+          let ele = document.getElementById('hotkey-'+(index));
+
+          pressedHotkeys[index] = Date.now();
+
+          $(ele).animate({top:"-10px"},300);
+          $(ele).css({opacity:1.0});
+
+          setTimeout(function() {
+            var now = Date.now();
+            if (now - pressedHotkeys[index] >= 900) {
+              $(ele).animate({top:"0px"},200);
+              $(ele).css({opacity:0.0});
+
+              pressedHotkeys[index] = undefined;
+
+              var c = 0;
+              for (var key in pressedHotkeys) {
+                if (pressedHotkeys[key]) {
+                  c++;
+                }
+              }
+
+              if (c <= 0) {
+                hotkeysOpen = false;
+              }
+            }
+          },2500)       
+        }
+      }
+
+      hotkeysOpen = true;
+    }
+
+    window.addEventListener('keyup',function(e) {
+      if (e.key == "esc" || e.key == "Esc" || e.key == "Escape" || e.key == "escape") {
+        if (playingMinigame) {
+          closeMinigame();
+        } else if (inventoryOpen) {
+          if (toolTip) {
+            removeTooltip();
+          }
+          closeInventory();
+        }
+      }
+    })
+
+    window.addEventListener('message',function(event) {
+      switch (event.data.message) {
+        case "init":
+          resourceName  = event.data.resourceName;
+          playerId      = event.data.plyId;
+          playerMoney   = event.data.plyMoney;
+          translations  = event.data.translations;
+          $.post(`https://${resourceName}/loaded`);
+
+          $("#close-button-text").text(translations["close_button"]);
+          $("#use-button-text").text(translations["use_button"]);
+        break;
+
+        case "setMoney":
+          playerMoney = event.data.money;
+          $('.money').html(translations['money_to_spend'].replace('${playerMoney}',playerMoney));
+        break;
+
+        case "openInventory":
+          inventoryOpen = true;
+
+          plyInv = new Inventory(event.data.playerInventory.type,event.data.playerInventory.identifier,event.data.playerInventory.label,event.data.playerInventory);
+          otherInv = new Inventory(event.data.otherInventory.type,event.data.otherInventory.identifier,event.data.otherInventory.label,event.data.otherInventory);
+
+          document.getElementById('swap-notifications').style.display = "none";
+          document.getElementById('hotkeys').style.display = "none";
+          document.getElementById('container').style.display = "block";
+        break;
+
+        case "refreshInventory":
+          if (event.data.playerInventory) {
+            if (plyInv) {
+              plyInv.refresh(event.data.playerInventory);
+            }
+          } 
+
+          if (event.data.otherInventory) {
+            if (otherInv) {
+              otherInv.refresh(event.data.otherInventory);
+            }
+          }
+        break;
+
+        case "closeInventory":
+          document.getElementById('container').style.display = "none";
+        break;
+
+        case "startMinigame":
+          startMinigame(event.data.length,event.data.speed);
+        break;
+
+        case "updateActions":
+          updateActions(event.data.actions);
+        break;
+
+        case "pressHotkey":
+          hotkeyPressed(event.data.index,event.data.hotkeyItems);
+        break;
+
+        case "addNotification":
+          addNotification(event.data.added,event.data.item);
+        break;
+      }
+    })
+  </script>
+</body>
+</html>
